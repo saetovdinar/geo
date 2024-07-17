@@ -3,9 +3,17 @@ export default class Timeline {
         this.container = container;
         this.eventRegister();
         this.timeline = document.querySelector('.timeline');
+        
     }
 
     eventRegister() {
+        this.videoPost();
+        this.audioPost();
+        this.textPost();
+        this.cancelBtn();
+        this.submitBtn();
+    }
+    videoPost() {
         const recordVideoBtn = document.querySelector('.video_record');
         const stopVideoBtn = document.querySelector('.video_stop');
         
@@ -16,9 +24,14 @@ export default class Timeline {
         });
             const videoPlayer = document.createElement('video');
             videoPlayer.classList.add('video');
+            const postCont = document.createElement('div');
+            postCont.classList.add('post_cont');
+            postCont.append(videoPlayer);
+           
             videoPlayer.setAttribute('controls', 'controls');
-            this.timeline.appendChild(videoPlayer);
-        
+            this.timeline.prepend(postCont);
+            this.currentPost = postCont;
+            this.postGeo(postCont);
             const recorder = new MediaRecorder(media);
             const chunk = [];
 
@@ -44,7 +57,10 @@ export default class Timeline {
        
             })
     })
+    }
 
+    audioPost() {
+        
         const recordAudioBtn = document.querySelector('.audio_record');
         const stopAudioBtn = document.querySelector('.audio_stop');
        
@@ -55,10 +71,15 @@ export default class Timeline {
         });
       
         const audioPlayer = document.createElement('audio');
+        const postCont = document.createElement('div');
+        postCont.classList.add('post_cont');
         audioPlayer.classList.add('audio');
-        audioPlayer.setAttribute('controls', 'controls');
-        this.timeline.appendChild(audioPlayer);
+        postCont.append(audioPlayer);
        
+        audioPlayer.setAttribute('controls', 'controls');
+        this.timeline.prepend(postCont);
+        this.postGeo(postCont);
+        this.currentPost = postCont;
         const recorder = new MediaRecorder(media);
         const chunk = [];
 
@@ -90,4 +111,82 @@ export default class Timeline {
     })
     }
 
+    textPost() {
+        
+        const submitBtn = document.querySelector('.submit');
+        const text = document.querySelector('.input');
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const postCont = document.createElement('div');
+            postCont.classList.add('post_cont');
+            postCont.append(text.value);
+            this.timeline.prepend(postCont);
+            this.postGeo(postCont);
+            this.currentPost = postCont;
+            text.value = '';
+        })
+    }
+    postGeo(postCont) {
+        
+        const geoCont = document.createElement('div');
+        navigator.geolocation.getCurrentPosition((data) => {
+            const {latitude, longitude} = data.coords;
+            geoCont.append(`[${latitude}, ${longitude}]`)
+            postCont.append(geoCont);
+        }, (err) => {
+            this.modalHTML(postCont);
+            
+        });
+        
+        
+    }
+
+    modalHTML(postCont) {
+        const modaleWindow = `
+        <div class="modale_window">
+            <p>
+                Что-то пошло не так!
+            </p>
+            <p>
+                Широта и долгота через запятую
+            </p>
+            <input type="text" class="input_modal">
+            <button class="submit">OK</button>
+            <button class="cancel">Отмена</button>
+        </div>`;
+
+        postCont.innerHTML += modaleWindow;
+    }
+        
+    cancelBtn() {
+       
+        document.addEventListener('click', (event) => {
+            if(event.target.classList.contains('cancel')) {
+                event.preventDefault();
+                const modaleWindow = document.querySelector('.modale_window');
+                
+                modaleWindow.remove();
+            }
+            
+        })
+    }
+    submitBtn() {
+       
+        document.addEventListener('click', (event) => {
+            if(event.target.classList.contains('submit')) {
+                event.preventDefault();
+                const modaleWindow = document.querySelector('.modale_window');
+                const inputValue = modaleWindow.querySelector('.input_modal').value;
+                this.currentPost.append(inputValue);
+                this.currentPost = null;
+                // this.validateCoords(inputValue);
+                modaleWindow.remove();
+            }
+            
+        })
+    }
+
+    validateCoords(coords) {
+        return /^[]$/.test(coords)
+    }
 }

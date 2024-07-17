@@ -23,7 +23,7 @@
 .timeline {
   width: 500px;
   padding: 15px;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid #ced4da;
   height: 500px;
 }
@@ -37,4 +37,21 @@
   width: 100%;
   height: 200px;
 }
-
+.post_cont {
+  border:#495057 1px solid;
+  border-radius: 20px;
+  width: 100%;
+  padding: 25px;
+  margin-bottom: 5px;
+}
+.modale_window {
+  position: absolute;
+  left: calc(50% - 150px); 
+  top: calc(50% - 150px);
+  padding: 30px;
+  width: 300px;
+  height: 300px;
+  border: #495057 1px solid;
+  border-radius: 25px;
+  background-color: white;
+}
