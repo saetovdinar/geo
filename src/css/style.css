@@ -43,6 +43,8 @@
   width: 100%;
   padding: 25px;
   margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
 }
 .modale_window {
   position: absolute;

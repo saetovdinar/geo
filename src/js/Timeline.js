@@ -31,7 +31,7 @@ export default class Timeline {
             videoPlayer.setAttribute('controls', 'controls');
             this.timeline.prepend(postCont);
             this.currentPost = postCont;
-            this.postGeo(postCont);
+           
             const recorder = new MediaRecorder(media);
             const chunk = [];
 
@@ -44,9 +44,9 @@ export default class Timeline {
             });
             recorder.addEventListener('stop', () => {
                 const blob = new Blob(chunk)
-
+               
                 videoPlayer.src = URL.createObjectURL(blob);
-            
+                this.postGeo(this.currentPost);
             });
             recorder.start();
 
@@ -78,7 +78,7 @@ export default class Timeline {
        
         audioPlayer.setAttribute('controls', 'controls');
         this.timeline.prepend(postCont);
-        this.postGeo(postCont);
+        
         this.currentPost = postCont;
         const recorder = new MediaRecorder(media);
         const chunk = [];
@@ -97,7 +97,7 @@ export default class Timeline {
             const urlBlob =  URL.createObjectURL(blob);
 
             audioPlayer.src = urlBlob;
-
+            this.postGeo(this.currentPost);
             
         });
         recorder.start();
@@ -121,8 +121,9 @@ export default class Timeline {
             postCont.classList.add('post_cont');
             postCont.append(text.value);
             this.timeline.prepend(postCont);
-            this.postGeo(postCont);
+            
             this.currentPost = postCont;
+            this.postGeo(this.currentPost);
             text.value = '';
         })
     }
@@ -133,6 +134,7 @@ export default class Timeline {
             const {latitude, longitude} = data.coords;
             geoCont.append(`[${latitude}, ${longitude}]`)
             postCont.append(geoCont);
+           data.coords
         }, (err) => {
             this.modalHTML(postCont);
             
@@ -177,9 +179,11 @@ export default class Timeline {
                 event.preventDefault();
                 const modaleWindow = document.querySelector('.modale_window');
                 const inputValue = modaleWindow.querySelector('.input_modal').value;
-                this.currentPost.append(inputValue);
+                const valueCont = document.createElement('div');
+                valueCont.append(inputValue);
+                this.currentPost.append(this.validateCoords(inputValue));
                 this.currentPost = null;
-                // this.validateCoords(inputValue);
+                
                 modaleWindow.remove();
             }
             
@@ -187,6 +191,15 @@ export default class Timeline {
     }
 
     validateCoords(coords) {
-        return /^[]$/.test(coords)
+        
+        if(!(/\[.+\]/.test(coords))) {
+            return `[${coords}]`;
+        }
+        if(!(/\[.+ .+\]/.test(coords))) {
+            const arrFromCoord = coords.split(',');
+            const coord = `${arrFromCoord[0]}, ${arrFromCoord[1]}`;
+            return coord;
+        }
+        return coords;
     }
 }
